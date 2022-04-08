@@ -28,6 +28,7 @@ expensive, we saw enough evidence that it may lead to a performance benefit in t
 
 
 <p align="center"><img src="result_igf.png" alt="result_igf"/></p>
+
 Figure 1: Comparing IGF to Standard Fine-tuning:
 IGF with constant (p < 10−3 , t-test) and shifting(p < 10−6 , t-test) thresholding significantly outperform standard fine-tuning. The left-hand figure shows
 test-set perplexity after each fine-tuning batch, averaged over 50 runs (error bars denote ± one standard error). The right-hand figure shows the perplexity of each
