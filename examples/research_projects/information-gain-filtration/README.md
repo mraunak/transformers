@@ -1,8 +1,8 @@
 
 # Description of the IGF feature 
 
-The new feature is the implementation of the Information Gain Filtration method for model
-fine-tuning (see paper below). The method is an alternative fine-tuning method that trains
+Here we present a general fine-tuning method that we call information gain filtration for improving the overall training efficiency and final
+performance of language model fine-tuning(see paper below). The method is an alternative fine-tuning method that trains
 a secondary model (e.g., a simple convolutional network) to predict the amount of information
 gained over a given pre-trained model. The secondary model is lightweight and trained to
 predict the Information Gain measure. Information Gain is defined as the change in a loss
@@ -16,7 +16,7 @@ strategy is defined to select informative samples. With such a strategy, samples
 and once enough samples are selected to form a mini-batch and a usual fine-tuning/optimization
 step is applied. The filtration process is repeated until the fine-tuning process is over. 
 
-This is the code base for the paper [Selecting Informative Contexts Improves Language Model Finetuning](https://arxiv.org/abs/2005.00175)
+Paper [Selecting Informative Contexts Improves Language Model Finetuning](https://arxiv.org/abs/2005.00175)
 
 # Results
 
