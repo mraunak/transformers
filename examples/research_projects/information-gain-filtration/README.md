@@ -1,5 +1,5 @@
-"""
-Description of the IGF feature 
+
+# Description of the IGF feature 
 
 The new feature is the implementation of the Information Gain Filtration method for model
 fine-tuning (see paper below). The method is an alternative fine-tuning method that trains
@@ -16,7 +16,9 @@ strategy is defined to select informative samples. With such a strategy, samples
 and once enough samples are selected to form a mini-batch and a usual fine-tuning/optimization
 step is applied. The filtration process is repeated until the fine-tuning process is over. 
 
-Results
+This is the code base for the paper [Selecting Informative Contexts Improves Language Model Finetuning](https://arxiv.org/abs/2005.00175)
+
+# Results
 
 Several experiments were conducted to show the robustness of the IGF method versus the
 standard fine-tuning process. For example, we achieve a median perplexity of 54.0 on the 
