@@ -229,14 +229,12 @@ def main():
         help="The output directory where the model predictions and checkpoints will be written.",
     )
 
-
     parser.add_argument(
         "--tokenizer_name",
         default="",
         type=str,
         help="Pretrained tokenizer name or path if not the same as model_name",
     )
-
 
     parser.add_argument(
         "--n_pairs",
@@ -279,74 +277,76 @@ def main():
 
     parser.add_argument(
         "--runs",
-        default=1,
-        type=int,
+        default = 1,
+        type = int,
         help="number of times the igf fine-tuning method is executed",
     )
 
     parser.add_argument(
         "--batch_size",
-        default=16,
-        type=int,
-        help="batch size of training data of language model(gpt2) ")
+        default = 16,
+        type = int,
+        help = "batch size of training data of language model(gpt2) ")
 
     parser.add_argument(
         "--eval_interval",
-        default=10,
-        type=int,
-        help="decay the selectivity of our secondary learner filter from"
+        default = 10,
+        type = int,
+        help = "decay the selectivity of our secondary learner filter from"
              "1 standard deviation above average to 1 below average after 10 batches")
 
     parser.add_argument(
         "--number_in_test",
-        default=100,
-        type=int,
+        default = 100,
+        type = int,
         help="The number of examples used as test_data")
 
     parser.add_argument(
         "--min_len",
-        default=1026,
-        type=int,
-        help="The minimum length of the article to be used as objective set")
+        default = 1026,
+        type = int,
+        help = "The minimum length of the article to be used as objective set")
 
     parser.add_argument(
         "--secondary_learner_max_epochs",
-        default=15,
-        type=int,
-        help="epochs to train secondary learner")
+        default = 15,
+        type = int,
+        help = "epochs to train secondary learner")
 
     parser.add_argument(
         "--trim",
-        default=True,
-        type=bool,
-        help="The minimum length of the article to be used as objective set")
+        default = True,
+        type = bool,
+        help = "The minimum length of the article to be used as objective set")
 
     parser.add_argument(
         "--threshold",
-        default=1.0,
-        type=float,
-        help="The threshold value used by secondary learner to filter the train_data entering the model")
+        default = 1.0,
+        type = float,
+        help = "The threshold value used by secondary learner to filter the train_data entering the model")
 
     parser.add_argument(
         "--finetuned_model_name",
-        default='gpt2_finetuned.pt',
-        type=str,
-        help="finetuned_model_name")
+        default = 'gpt2_finetuned.pt',
+        type = str,
+        help = "finetuned_model_name")
 
     parser.add_argument(
         "--recopy_model",
         default=recopy_gpt2,
-        type=str,
-        help="Reset the model to the original pretrained GPT-2 weights after each iteration")
+        type = str,
+        help = "Reset the model to the original pretrained GPT-2 weights after each iteration")
 
     # function calls
-
-    generate_n_pairs(context_len=32, n_pairs=10, size_objective_set=100, min_len=1026, trim=True,
-                     data_file='data/tokenized_stories_train_wikitext103.jbl',
-                     igf_data_file='igf_context_pairs.jbl'
+    # Collecting *n* pairs of context and information gain(X, IG(X)) for training the secondary learner
+    generate_n_pairs(context_len = 32, n_pairs = 10, size_objective_set = 100, min_len = 1026, trim = True,
+                     data_file = 'data/tokenized_stories_train_wikitext103.jbl',
+                     igf_data_file = 'igf_context_pairs.jbl'
                      )
+    # Load train data for secondary learner
     secondary_learner_train_data = joblib.load('data/IGF_values.jbl')
 
+    # Train secondary learning
     secondary_learner = training_secondary_learner(secondary_learner_train_data, secondary_learner_max_epochs=15,
                                                    secondary_learner_batch_size=128, eval_freq=100,
                                                    igf_model_path='igf_model.pt', igf_data_file='data/IGF_values.jbl')
@@ -354,11 +354,15 @@ def main():
     # Load model
     model = GPT2LMHeadModel.from_pretrained('gpt2')
     set_seed(42)
-    train_dataset, test_dataset = generate_datasets(context_len=32, file='data/tokenized_stories_train_wikitext103.jbl',
-                                                    number=100, min_len=1026, trim=True)
-    finetune(model, train_dataset, test_dataset, context_len=32,
-             max_steps=1000, batch_size=16, threshold=1.0, recopy_model=recopy_gpt2,
-             secondary_learner=secondary_learner, eval_interval=10,
+
+    train_dataset, test_dataset = generate_datasets(context_len = 32, file = 'data/tokenized_stories_train_wikitext103.jbl',
+                                                    number = 100, min_len = 1026, trim = True)
+
+
+    # fintuning of the gpt2 model using igf (Information Gain Filtration
+    finetune(model, train_dataset, test_dataset, context_len = 32,
+             max_steps = 1000, batch_size = 16, threshold = 1.0, recopy_model = recopy_gpt2,
+             secondary_learner = secondary_learner, eval_interval = 10,
              finetuned_model_name='gpt2_finetuned.pt')
 
 
