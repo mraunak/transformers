@@ -29,14 +29,45 @@ import argparse
 
 
 #Collecting *n* pairs for training the secondary learner
-def generate_n_pairs(context_len = 32, n_pairs = 10, number = 100, min_len = 1026, trim = True,
+"""
+Demo of implementation of a new method for fine-tuning transformer models that we call as 'IGF'
+on WikiText data set and compared the results with the standard fine-tuning method
+
+steps followed in the demo
+
+1) Generate a objective dataset of pairs (X, IG(X)). IG(X)--Informativeness of context 'X'
+Our IG (information gain) model is learning predict the ‘informativeness’ of a particular context
+Informativeness is the change in perplexity between the model’s accuracy on an objective set
+before and after seeing that context
+
+2) A secondary learner is created to infer a function approximation for IG model using the dataset created in (1).
+3) The learner created in (2) is used to inform the fine-tuning process.
+`
+We then generate a plot comparing the performance of IGF compared to standard fine-tuning without any context filtering
+
+"""
+
+# Prerequisite libraries:
+
+import joblib
+import numpy as np
+import torch
+from transformers import GPT2LMHeadModel
+from typing import Optional
+from IGF import *
+import argparse
+
+
+
+#Collecting *n* pairs for training the secondary learner
+def generate_n_pairs(context_len = 32, n_pairs = 10, size_objective_set = 100, min_len = 1026, trim = True,
                     data_file = 'data/tokenized_stories_train_wikitext103.jbl',
                     igf_data_file = 'igf_context_pairs.jbl'
             ):
     # generates same data everytime
     set_seed(3)
     # generate train_data and objective_set
-    train_data, objective_set = generate_datasets(context_len, data_file, number, min_len, trim)
+    train_data, objective_set = generate_datasets(context_len, data_file, number=size_objective_set, min_len=1026, trim=True)
     # keeps model same across runs
     set_seed(4)
     # model, lm_optimizer, lm_scheduler = recopy_gpt2(model, device, n_pairs) # store original model weights
@@ -56,9 +87,9 @@ def generate_n_pairs(context_len = 32, n_pairs = 10, number = 100, min_len = 102
     del model, train_data, objective_set
     torch.cuda.empty_cache()
 
-
 # Train the secondary learner
-def training_secondary_learner(max_epochs=15, batch_size=128, eval_freq=100,
+def training_secondary_learner(secondary_learner_train_data, secondary_learner_max_epochs=15,
+                               secondary_learner_batch_size=128, eval_freq=100,
                                igf_model_path='igf_model.pt', igf_data_file='data/IGF_values.jbl'):
     set_seed(42)
     # Load model
@@ -68,11 +99,12 @@ def training_secondary_learner(max_epochs=15, batch_size=128, eval_freq=100,
     secondary_learner = SecondaryLearner(model)
 
     # Train secondary learner
-    secondary_learner = train_secondary_learner(secondary_learner, train_data,
-                                                max_epochs=15, batch_size=128, eval_freq=100,
+    secondary_learner = train_secondary_learner(secondary_learner, secondary_learner_train_data,
+                                                max_epochs=secondary_learner_max_epochs,
+                                                batch_size=secondary_learner_batch_size, eval_freq=100,
                                                 igf_model_path=igf_model_path)
 
-    del model, train_data
+    del model, secondary_learner_train_data
     torch.cuda.empty_cache()
 
     return secondary_learner
@@ -80,7 +112,7 @@ def training_secondary_learner(max_epochs=15, batch_size=128, eval_freq=100,
 
 def finetune(model, train_dataset, test_dataset, context_len=32,
              max_steps=1000, batch_size=16, threshold=1.0, recopy_model=recopy_gpt2,
-             secondary_learner=secondary_learner, eval_interval=10,
+             secondary_learner=True, eval_interval=10,
              finetuned_model_name='gpt2_finetuned.pt'):
     # finetune with IGF if secondary_learner is not None, else standard finetuning
     # Initialize the model
@@ -197,22 +229,14 @@ def main():
         help="The output directory where the model predictions and checkpoints will be written.",
     )
 
-    # Other parameters
-    parser.add_argument(
-        "--config_name", default="", type=str, help="Pretrained config name or path if not the same as model_name"
-    )
+
     parser.add_argument(
         "--tokenizer_name",
         default="",
         type=str,
         help="Pretrained tokenizer name or path if not the same as model_name",
     )
-    parser.add_argument(
-        "--cache_dir",
-        default=None,
-        type=str,
-        help="Where do you want to store the pre-trained models downloaded from huggingface.co",
-    )
+
 
     parser.add_argument(
         "--n_pairs",
@@ -226,18 +250,45 @@ def main():
         default=32,
         type=int,
         help="The maximum total input sequence length after tokenization. Sequences longer "
-             "than this will be truncated, sequences shorter will be padded.",
+             "than this will be truncated, sequences shorter will be padded."
     )
     parser.add_argument(
-        "--max_steps", default=1000, type=int,
+        "--size_objective_set",
+        default=100,
+        type=int,
+        help="number of articles that are long enough to be used as our objective set"
+    )
+    parser.add_argument(
+        "--eval_freq",
+        default=100,
+        type=int,
+        help="secondary model evaluation is triggered at eval_freq"
+    )
+
+    parser.add_argument(
+        "--max_steps",
+        default=1000,
+        type=int,
         help="To calculate training epochs")
+
+    parser.add_argument(
+        "--secondary_learner_batch_size",
+        default=128,
+        type=int,
+        help="batch size of training data for secondary learner ")
 
     parser.add_argument(
         "--runs",
         default=1,
         type=int,
-        help=".",
+        help="number of times the igf fine-tuning method is executed",
     )
+
+    parser.add_argument(
+        "--batch_size",
+        default=16,
+        type=int,
+        help="batch size of training data of language model(gpt2) ")
 
     parser.add_argument(
         "--eval_interval",
@@ -259,27 +310,53 @@ def main():
         help="The minimum length of the article to be used as objective set")
 
     parser.add_argument(
+        "--secondary_learner_max_epochs",
+        default=15,
+        type=int,
+        help="epochs to train secondary learner")
+
+    parser.add_argument(
         "--trim",
         default=True,
         type=bool,
         help="The minimum length of the article to be used as objective set")
 
+    parser.add_argument(
+        "--threshold",
+        default=1.0,
+        type=float,
+        help="The threshold value used by secondary learner to filter the train_data entering the model")
 
-    # Load model
-    model = GPT2LMHeadModel.from_pretrained('gpt2')
-    set_seed(seed)
-    train_data, test_data = generate_datasets(context_len=32, data_file='data/tokenized_stories_train_wikitext103.jbl',
-                                              number_in_test=100, min_len=1026, trim=True)
+    parser.add_argument(
+        "--finetuned_model_name",
+        default='gpt2_finetuned.pt',
+        type=str,
+        help="finetuned_model_name")
 
-    generate_n_pairs(context_len=32, n_pairs=10, number=100, min_len=1026, trim=True,
+    parser.add_argument(
+        "--recopy_model",
+        default=recopy_gpt2,
+        type=str,
+        help="Reset the model to the original pretrained GPT-2 weights after each iteration")
+
+    # function calls
+
+    generate_n_pairs(context_len=32, n_pairs=10, size_objective_set=100, min_len=1026, trim=True,
                      data_file='data/tokenized_stories_train_wikitext103.jbl',
                      igf_data_file='igf_context_pairs.jbl'
                      )
+    secondary_learner_train_data = joblib.load('data/IGF_values.jbl')
 
-    secondary_learner = training_secondary_learner(max_epochs=15, batch_size=128, eval_freq=100,
+    secondary_learner = training_secondary_learner(secondary_learner_train_data, secondary_learner_max_epochs=15,
+                                                   secondary_learner_batch_size=128, eval_freq=100,
                                                    igf_model_path='igf_model.pt', igf_data_file='data/IGF_values.jbl')
 
-    finetune(model, train_data, test_data, context_len=32,
+    # Load model
+    model = GPT2LMHeadModel.from_pretrained('gpt2')
+    set_seed(42)
+    train_dataset, test_dataset = generate_datasets(context_len=32, file='data/tokenized_stories_train_wikitext103.jbl',
+                                                    number=100, min_len=1026, trim=True)
+    finetune(model, train_dataset, test_dataset, context_len=32,
              max_steps=1000, batch_size=16, threshold=1.0, recopy_model=recopy_gpt2,
              secondary_learner=secondary_learner, eval_interval=10,
              finetuned_model_name='gpt2_finetuned.pt')
@@ -287,4 +364,3 @@ def main():
 
 if __name__ == '__main__':
     main()
-
