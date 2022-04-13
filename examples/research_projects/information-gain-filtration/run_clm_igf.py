@@ -11,7 +11,7 @@ before and after seeing that context
 
 2) A secondary learner is created to infer a function approximation for IG model using the dataset created in (1).
 3) The learner created in (2) is used to inform the fine-tuning process.
-`
+
 We then generate a plot comparing the performance of IGF compared to standard fine-tuning without any context filtering
 
 """
@@ -23,6 +23,7 @@ import numpy as np
 import torch
 from transformers import GPT2LMHeadModel
 from typing import Optional
+from torch.utils.data import (DataLoader, RandomSampler)
 from igf.igf import *
 import argparse
 
@@ -56,13 +57,16 @@ def generate_n_pairs(context_len = 32, max_steps = 10, size_objective_set = 100,
     del model, train_data, objective_set
     torch.cuda.empty_cache()
 
-# Train the secondary learner
+
 def training_secondary_learner(secondary_learner_train_data, secondary_learner_max_epochs=15,
                                secondary_learner_batch_size=128, eval_freq = 100,
                                igf_model_path='igf_model.pt', igf_data_file ='data/IGF_values.jbl'):
+
+    """Train the secondary learner"""
+
     set_seed(42)
 
-    # Load model
+    # Load pre-trained model
     model = GPT2LMHeadModel.from_pretrained('gpt2')
 
     # Initialize secondary learner to use embedding weights of model
@@ -84,8 +88,9 @@ def finetune(model, train_dataset, test_dataset, context_len = 32,
              max_steps = 1000, batch_size = 16, threshold = 1.0, recopy_model = recopy_gpt2,
              secondary_learner = True, eval_interval = 10,
              finetuned_model_name = 'gpt2_finetuned.pt'):
-    # finetune with IGF if secondary_learner is not None, else standard finetuning
-    # Initialize the model
+
+    """finetune with IGF if secondary_learner is not None, else standard finetuning"""
+
 
     device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
     train_sampler = RandomSampler(train_dataset)
@@ -211,7 +216,7 @@ def main():
         default=None,
         type=str,
         required=True,
-        help="The output directory where the model predictions and checkpoints will be written.",
+        help="The output directory where the final model is stored.",
     )
 
     parser.add_argument(
@@ -219,6 +224,12 @@ def main():
         default = None,
         type = str,
         help = "Pretrained tokenizer name or path if not the same as model_name",
+    )
+    parser.add_argument(
+        "--seed",
+        type=int,
+        default=None,
+        help="A seed for reproducible training."
     )
 
     parser.add_argument(
