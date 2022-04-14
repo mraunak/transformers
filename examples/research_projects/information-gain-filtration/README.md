@@ -1,5 +1,11 @@
 
-# Description of the IGF feature 
+# Information Gain Filtration(IGF)
+
+Authors @Tuko @mraunak
+
+This folder contains the code how to implement IGF for finetuning on GPT-2.
+
+## What is IGF?
 
 Here we present a general fine-tuning method that we call information gain filtration for improving the overall training efficiency and final
 performance of language model fine-tuning(see paper below). The method is an alternative fine-tuning method that trains
@@ -26,10 +32,36 @@ Books dataset compared to 57.3 for standard fine-tuning on GPT-2 Small. The code
 implemented using the Transformers library and Pytorch. While the method may seem more
 expensive, we saw enough evidence that it may lead to a performance benefit in the final models.   
 
-
-<p align="center"><img src="result_igf.png" alt="result_igf"/></p>
+![IGF performance](result_igf.png)
 
 Figure 1: Comparing IGF to Standard Fine-tuning:
 IGF with constant (p < 10−3 , t-test) and shifting(p < 10−6 , t-test) thresholding significantly outperform standard fine-tuning. The left-hand figure shows
 test-set perplexity after each fine-tuning batch, averaged over 50 runs (error bars denote ± one standard error). The right-hand figure shows the perplexity of each
 method after 60 batches. IGF with shifting thresholding (red) clearly improves over standard batched fine-tuning with Adam
+
+## How to use this project?
+
+To do
+describe command line parameters
+```python
+python run_clm_igf.py --data data/
+```
+
+## Citation
+
+If you find the resource useful, please cite the following paper
+
+```
+@inproceedings{antonello-etal-2021-selecting,
+    title = "Selecting Informative Contexts Improves Language Model Fine-tuning",
+    author = "Antonello, Richard and Beckage, Nicole and Turek, Javier and Huth, Alexander",
+    booktitle = "Proceedings of the 59th Annual Meeting of the Association for Computational Linguistics and the 11th International Joint Conference on Natural Language Processing (Volume 1: Long Papers)",
+    month = aug,
+    year = "2021",
+    address = "Online",
+    publisher = "Association for Computational Linguistics",
+    url = "https://aclanthology.org/2021.acl-long.87",
+    doi = "10.18653/v1/2021.acl-long.87",
+    pages = "1072--1085",
+}
+```
