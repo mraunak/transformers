@@ -41,16 +41,16 @@ method after 60 batches. IGF with shifting thresholding (red) clearly improves o
 
 ## How to use this project?
 
-To do
-describe command line parameters
+
 ```python
 python run_clm_igf.py\
---data_dir path_to_store_all_data \
 --model_name_or_path pretrained GPT-2 model \
---data_file path path_to_GPT-2_train_file \
---igf_data_file path_to_secondary_learner_train_file \
+--data_file="data/tokenized_stories_train_wikitext103" \
+--igf_data_file="data/IGF_values" \
 --context_len 32 \
 --size_objective_set 100 \
+--min_len 1026 \
+--trim True \
 --eval_freq 100 \
 --max_steps 1000 \
 --secondary_learner_batch_size 128 \
