@@ -34,8 +34,7 @@ def generate_n_pairs(context_len=32,
                      min_len=1026,
                      trim=True,
                      data_file='data/tokenized_stories_train_wikitext103.jbl',
-                     igf_data_file='igf_context_pairs.jbl'
-                     ):
+                     igf_data_file='igf_context_pairs.jbl'):
 
     """
     Collecting *n* pairs for training the secondary learner
@@ -46,7 +45,7 @@ def generate_n_pairs(context_len=32,
         size_objective_set: size of objective data set used to create (X,IG(X)) pairs which is the training data for secondary learner
         min_len: The minimum length of the article to be used as objective set
         trim: If True truncate the context if it exceeds context length
-        data_file: Tokenized data set splitted for training and evaluation of model
+        data_file: Tokenized data set split for training and evaluation of model
         igf_data_file: file to store (I,IG(X)) paired data set to train secondary learner
 
     Returns:
@@ -265,7 +264,7 @@ def main():
         "--data_file",
         type=str,
         default=None,
-        help="A jbl file containing tokenized data which can be splitted as objective dataset, "
+        help="A jbl file containing tokenized data which can be split as objective dataset, "
              "train_dataset and test_dataset."
     )
 
@@ -281,7 +280,7 @@ def main():
         default=None,
         type=str,
         required=True,
-        help="The output directory where the final model is stored.",
+        help="The output directory where the final fine-tuned model is stored.",
     )
 
     parser.add_argument(
@@ -332,12 +331,6 @@ def main():
         help="batch size of training data for secondary learner"
     )
 
-    parser.add_argument(
-        "--runs",
-        default=1,
-        type=int,
-        help="number of times the igf fine-tuning method is executed",
-    )
 
     parser.add_argument(
         "--batch_size",
@@ -355,10 +348,10 @@ def main():
     )
 
     parser.add_argument(
-        "--number_in_test",
+        "--number",
         default=100,
         type=int,
-        help="The number of examples used as test_data for gpt2 model"
+        help="The number of examples split to be used as objective_set/test_data"
     )
 
     parser.add_argument(
@@ -411,8 +404,7 @@ def main():
                      size_objective_set=100,
                      min_len=1026, trim=True,
                      data_file='data/tokenized_stories_train_wikitext103.jbl',
-                     igf_data_file='igf_context_pairs.jbl'
-                     )
+                     igf_data_file='igf_context_pairs.jbl')
 
     # Load train data for secondary learner
     secondary_learner_train_data = joblib.load('data/IGF_values.jbl')
@@ -423,7 +415,7 @@ def main():
                                                    secondary_learner_batch_size=128,
                                                    eval_freq=100,
                                                    igf_model_path='igf_model.pt',
-                                                   igf_data_file='data/IGF_values.jbl')
+                                                )
 
     # load pretrained gpt2 model
     model = GPT2LMHeadModel.from_pretrained('gpt2')

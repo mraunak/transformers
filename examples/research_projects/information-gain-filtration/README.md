@@ -44,7 +44,21 @@ method after 60 batches. IGF with shifting thresholding (red) clearly improves o
 To do
 describe command line parameters
 ```python
-python run_clm_igf.py --data data/
+python run_clm_igf.py\
+--data_dir\
+--model_name_or_path\
+--data_file path path_to_GPT-2_train_file \
+--igf_data_file path_to_secondary_learner_train_file\
+--context_len 32 \
+--size_objective_set 100 \
+--eval_freq 100 \
+--max_steps 1000 \
+--secondary_learner_batch_size 128 \
+--secondary_learner_max_epochs 15 \
+--number 100 \
+--recopy_model \
+--eval_interval 10 \
+--output_dir/model
 ```
 
 ## Citation

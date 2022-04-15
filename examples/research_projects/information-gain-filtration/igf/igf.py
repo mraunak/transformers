@@ -5,8 +5,7 @@ import random
 import joblib
 import matplotlib.pyplot as plt
 import numpy as np
-from transformers import (AdamW, GPT2LMHeadModel)
-from transformers import get_linear_schedule_with_warmup
+from transformers import (AdamW, GPT2LMHeadModel, get_linear_schedule_with_warmup)
 import torch
 import torch.nn as nn
 from torch.utils.data import (DataLoader, RandomSampler)
@@ -19,11 +18,10 @@ logger = logging.getLogger(__name__)
 
 def set_seed(seed):
     """
+    For reproducible training
 
     Args:
-        seed:
-
-    Returns:
+        seed: A seed for reproducible training
 
     """
     random.seed(seed)
@@ -229,7 +227,7 @@ def generate_datasets(context_len,
     Args:
         context_len: The maximum total input sequence length after tokenization. Sequences longer
                 than this will be truncated, sequences shorter will be padded
-        file: Tokenized data splitted into training set and objective set
+        file: Tokenized data split into training set and objective set
         number: size of objective dataset
         min_len: minimum length of a context in objective set
         trim: If True truncate the context if it exceeds context length
@@ -243,7 +241,6 @@ def generate_datasets(context_len,
     # Designate the first number (100) articles that are long enough to be used
     # as our objective set, rest (that are long enough) are training data for
     # secondary learner
-
 
     data = joblib.load(file)
     print('data loaded')
@@ -394,8 +391,8 @@ class SecondaryLearner(nn.Module):
 
         """
         pooled = torch.max(self.conv(self.embeddings(context).squeeze(1).transpose(1, 2)), 2)[0]
-        Qs = self.fc(pooled)
-        return Qs.squeeze(1)
+        qs = self.fc(pooled)
+        return qs.squeeze(1)
 
     @classmethod
     def from_pretrained(cls, state_path, model):
