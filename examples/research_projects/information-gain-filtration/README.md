@@ -45,10 +45,10 @@ To do
 describe command line parameters
 ```python
 python run_clm_igf.py\
---data_dir\
---model_name_or_path\
+--data_dir path_to_store_all_data \
+--model_name_or_path pretrained GPT-2 model \
 --data_file path path_to_GPT-2_train_file \
---igf_data_file path_to_secondary_learner_train_file\
+--igf_data_file path_to_secondary_learner_train_file \
 --context_len 32 \
 --size_objective_set 100 \
 --eval_freq 100 \
@@ -58,7 +58,6 @@ python run_clm_igf.py\
 --number 100 \
 --recopy_model \
 --eval_interval 10 \
---output_dir/model
 ```
 
 ## Citation
