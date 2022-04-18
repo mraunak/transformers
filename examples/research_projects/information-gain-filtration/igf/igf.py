@@ -41,7 +41,7 @@ def compute_perplexity(model, test_data, context_len):
                      than this will be truncated, sequences shorter will be padded
 
     Returns:
-        Returns perplexity on input test data
+        Perplexity on input test data
 
     """
 
@@ -387,7 +387,7 @@ class SecondaryLearner(nn.Module):
             context: Context input to the secondary learner
 
         Returns:
-            return tensor after squeeze operation
+            tensor after squeeze operation
 
         """
         pooled = torch.max(self.conv(self.embeddings(context).squeeze(1).transpose(1, 2)), 2)[0]
