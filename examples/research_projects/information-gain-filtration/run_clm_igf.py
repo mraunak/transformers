@@ -1,18 +1,22 @@
 """
-Demo of implementation of a new method for fine-tuning transformer models that we call as 'IGF'
-on WikiText data set and compared the results with the standard fine-tuning method
+Implementation of a new method for fine-tuning transformer models that we call 
+Information Gain Filtration 'IGF' on WikiText data set and compared the results
+with the standard fine-tuning method
 
-steps followed in the demo
+Steps followed in the code:
 
-1) Generate a objective dataset of pairs (X, IG(X)). IG(X)--Informativeness of context 'X'
-Our IG (information gain) model is learning predict the ‘informativeness’ of a particular context
-Informativeness is the change in perplexity between the model’s accuracy on an objective set
-before and after seeing that context
+1) Generate a objective dataset of pairs (X, IG(X)). IG(X)--Informativeness of context 'X'.
+Our IG (information gain) model is learning to predict the ‘informativeness’ of a particular 
+context. Informativeness is the change in metric between the model’s accuracy on an 
+objective set before and after seeing that context. For casual language modeling, the
+metric is perplexity.
 
-2) A secondary learner is created to infer a function approximation for IG model using the dataset created in (1).
-3) The learner created in (2) is used to inform the fine-tuning process.
+2) A secondary learner is trained to infer a function approximation for IG using the dataset 
+created in (1).
 
-We then generate a plot comparing the performance of IGF compared to standard fine-tuning without any context filtering
+3) The learner created in (2) is used to inform the fine-tuning process and filter out low informative samples.
+
+Last, a plot is generated to compare the performance of IGF to standard fine-tuning without any filtering
 
 """
 
