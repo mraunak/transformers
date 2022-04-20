@@ -1,3 +1,6 @@
+# Copyright 2022 - Intel Corp. All rights reserved.
+# Authors: Mayank Kumar Raunak, Javier Turek
+  
 """
 Implementation of a new method for fine-tuning transformer models that we call 
 Information Gain Filtration 'IGF' on WikiText data set and compared the results
