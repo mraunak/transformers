@@ -44,7 +44,7 @@ method after 60 batches. IGF with shifting thresholding (red) clearly improves o
 
 ```python
 python run_clm_igf.py\
---model_name_or_path pretrained GPT-2 model \
+--model_name_or_path "gpt2" \
 --data_file="data/tokenized_stories_train_wikitext103" \
 --igf_data_file="data/IGF_values" \
 --context_len 32 \
