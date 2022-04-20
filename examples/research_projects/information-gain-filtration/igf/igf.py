@@ -1,3 +1,6 @@
+# Copyright 2022 - Intel Corp. All rights reserved.
+# Authors: Mayank Kumar Raunak, Javier Turek
+
 import copy
 import glob
 import random
