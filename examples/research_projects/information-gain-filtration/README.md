@@ -41,7 +41,7 @@ method after 60 batches. IGF with shifting thresholding (red) clearly improves o
 
 ## How to use this project?
 
-To Fine-tune a transformer model with IGF on a language modeling task, use the following script:
+To fine-tune a transformer model with IGF on a language modeling task, use the following script:
 
 - `model_name_or_path`: Path to pretrained model or model identifier from huggingface.co/models
 - `data_file`: A jbl file containing tokenized data which can be split as objective dataset,
