@@ -52,7 +52,7 @@ To fine-tune a transformer model with IGF on a language modeling task, use the f
 - `size_objective_set`: Number of articles that are long enough to be used as our objective set"
 - `min_len`: The minimum length of the article to be used as objective set
 - `trim`: Truncate the example if it exceeds context length
-- `eval_freq`:Secondary model evaluation can be triggered at eval_freq
+- `eval_freq`: Secondary model evaluation can be triggered at eval_freq
 - `max_steps`: To calculate training epochs
 - `number`: The number of examples split to be used as objective_set/test_data
 - `secondary_learner_batch_size`: The batch size of training data for secondary learner
