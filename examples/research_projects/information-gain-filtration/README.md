@@ -59,7 +59,7 @@ To fine-tune a transformer model with IGF on a language modeling task, use the f
 - `secondary_learner_max_epochs`: The number of epochs to train secondary learner
 - `recopy_model`: Reset the model to the original pretrained GPT-2 weights after each iteration
 - `eval_interval`: Decay the selectivity of our secondary learner filter from"
-    1 standard deviation above average to 1 below average after 10 batches"
+    1 standard deviation above average to 1 below average after eval_interval(10) batches"
 
   
 ```python
