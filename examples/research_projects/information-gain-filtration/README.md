@@ -41,7 +41,27 @@ method after 60 batches. IGF with shifting thresholding (red) clearly improves o
 
 ## How to use this project?
 
+To Fine-tune a transformer model with IGF on a language modeling task, use the following script:
 
+- `model_name_or_path`: Path to pretrained model or model identifier from huggingface.co/models
+- `data_file`: A jbl file containing tokenized data which can be split as objective dataset,
+    train_dataset and test_dataset
+- `igf_data_file`: A jbl file containing the context and information gain pairs to train secondary learner.  
+- `context_len`: The maximum total input sequence length after tokenization. Sequences longer 
+    than this will be truncated, sequences shorter will be padded.
+- `size_objective_set`: Number of articles that are long enough to be used as our objective set"
+- `min_len`: The minimum length of the article to be used as objective set
+- `trim`: Truncate the example if it exceeds context length
+- `eval_freq`:Secondary model evaluation can be triggered at eval_freq
+- `max_steps`: To calculate training epochs
+- `number`: The number of examples split to be used as objective_set/test_data
+- `secondary_learner_batch_size`: The batch size of training data for secondary learner
+- `secondary_learner_max_epochs`: The number of epochs to train secondary learner
+- `recopy_model`: Reset the model to the original pretrained GPT-2 weights after each iteration
+- `eval_interval`: Decay the selectivity of our secondary learner filter from"
+    1 standard deviation above average to 1 below average after 10 batches"
+
+  
 ```python
 python run_clm_igf.py\
 --model_name_or_path "gpt2" \

@@ -97,7 +97,7 @@ def training_secondary_learner(secondary_learner_train_data,
         secondary_learner_train_data: Data set with (X,IG(X)) pairs to train secondary learner where IG(X) - measure of informativeness and X- context
         secondary_learner_max_epochs: Number of epochs to train secondary learner
         secondary_learner_batch_size: Batch size to train secondary learner
-        eval_freq: secondary model evaluation can be triggered at eval_freq
+        eval_freq (object): secondary model evaluation can be triggered at eval_freq
         igf_model_path: path to store trained secondary learner
 
     Returns:
@@ -250,7 +250,7 @@ def finetune(model,
 
 
 def main():
-    parser = argparse.ArgumentParser(description="Fine-tune a transformers model with IGF on a language modeling task")
+    parser = argparse.ArgumentParser(description="Fine-tune a transformer model with IGF on a language modeling task")
 
     # Required parameters
     parser.add_argument(
